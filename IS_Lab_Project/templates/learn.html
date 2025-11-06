@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Learn About Ciphers</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    .learn-container {
+      display: flex;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .content-section {
+      flex: 3;
+      min-width: 0;
+    }
+    .video-section {
+      flex: 1;
+      min-width: 200px;
+      max-height: 70vh; /* Scrollable height relative to viewport */
+      overflow-y: auto;
+      border: 2px solid #483C32; /* Taupe border */
+      border-radius: 5px;
+      padding: 10px;
+      background-color: #F5F1E9; /* Beige background */
+    }
+    .video-item {
+      margin-bottom: 15px;
+    }
+    .video-item a {
+      text-decoration: none;
+      color: #D4A017; /* Soft gold */
+      font-family: 'Lora', serif;
+      font-size: 14px;
+      display: block;
+      text-align: center;
+    }
+    .video-item img {
+      width: 100%;
+      height: auto;
+      border: 2px solid #483C32; /* Taupe border */
+      border-radius: 5px;
+      transition: opacity 0.5s;
+    }
+    .video-item img:hover {
+      opacity: 0.8;
+    }
+    @media (max-width: 768px) {
+      .learn-container {
+        flex-direction: column;
+      }
+      .video-section {
+        max-height: none;
+        overflow-y: visible;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="fade-in">
+  <header>
+    <div class="header-container">
+      <!-- Placeholder for logo image -->
+      <!-- <img src="/static/your-logo.png" alt="Classy Encryptor Logo" class="logo"> -->
+      <h1>Classy Document Encryptor</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/encrypt-decrypt">Jump to Encryption</a>
+        <a href="/about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="learn-container fade-in">
+      <div class="content-section">
+        <h2>Learn About Different Types of Ciphers</h2>
+        <p>Explore the fascinating world of cryptography with these classic and modern ciphers. Try the simulations below!</p>
+
+        <div class="cipher-section">
+          <h3>Playfair Cipher</h3>
+          <p>The Playfair cipher is a digraph substitution cipher invented in 1854 by Charles Wheatstone. It uses a 5x5 grid of letters based on a keyword to encrypt pairs of letters. It handles 'J' as 'I' and adds 'X' for duplicate letters in pairs.</p>
+          <p>Example: With key "COMPUTER", "HELLO" becomes "FJMPMP".</p>
+          <figure class="cipher-image">
+            <img src="{{ url_for('static', filename='images/playfair.jpg') }}" alt="Playfair Matrix with key COMPUTER">
+            <figcaption>5x5 Playfair Matrix with key "COMPUTER"</figcaption>
+          </figure>
+          <ul class="rules-list">
+            <li>a) Key generation: Create a 5x5 matrix by filling unique letters from the key, then the rest of the alphabet (excluding J).</li>
+            <li>b) Encryption: Process plaintext into digraphs (add X if needed), apply rules (same row shift right, same column shift down, rectangle swap columns).</li>
+            <li>c) After encryption, the ciphertext is formed from the transformed digraphs.</li>
+            <li>d) Points to remember:</li>
+            <ul>
+              <li>i) Matrix size is 5x5, I/J combined.</li>
+              <li>ii) Odd-length plaintext adds X at end.</li>
+              <li>iii) Weaknesses: Vulnerable to frequency analysis of digraphs.</li>
+            </ul>
+            <li>Decryption: Use same matrix, reverse rules (shift left/up, etc.).</li>
+          </ul>
+          <button class="classy-button" onclick="togglePlayfair()">Simulate Encryption</button>
+          <div class="output-section hidden">
+            <p id="playfair-output" class="classy-pre"></p>
+          </div>
+        </div>
+
+        <div class="cipher-section">
+          <h3>Substitution Cipher</h3>
+          <p>A simple cipher where each letter in the plaintext is replaced by another letter based on a fixed key alphabet (26 unique letters). It's vulnerable to frequency analysis.</p>
+          <p>Example: With key "phqgiumeaylnofdxjkrcvstzwb", "HELLO" becomes "QJBBQ".</p>
+          <figure class="cipher-image">
+            <img src="{{ url_for('static', filename='images/substitutionCipher.jpg')}}" alt="Substitution Cipher Alphabet">
+            <figcaption>Substitution Alphabet with key "phqgiumeaylnofdxjkrcvstzwb"</figcaption>
+          </figure>
+          <ul class="rules-list">
+            <li>a) Key generation: A permuted alphabet of 26 unique letters.</li>
+            <li>b) Encryption: Map each plaintext letter to the corresponding key letter.</li>
+            <li>c) Case preserved, non-letters unchanged.</li>
+            <li>d) Points to remember:</li>
+            <ul>
+              <li>i) Key must be 26 unique letters.</li>
+              <li>ii) Weaknesses: Frequency analysis, known plaintext attacks.</li>
+            </ul>
+            <li>Decryption: Use inverse mapping.</li>
+          </ul>
+          <button class="classy-button" onclick="toggleSubstitution()">Simulate Encryption</button>
+          <div class="output-section hidden">
+            <p id="substitution-output" class="classy-pre"></p>
+          </div>
+        </div>
+
+        <div class="cipher-section">
+          <h3>Caesar Cipher</h3>
+          <p>One of the simplest ciphers, shifting each letter in the plaintext by a fixed number of positions (e.g., shift of 3: A → D, B → E).</p>
+          <p>Example: With shift 3, "HELLO" becomes "KHOOR".</p>
+          <figure class="cipher-image">
+            <img src="{{ url_for('static', filename='images/caeser.jpg')}}" alt="Caesar Cipher Shift Wheel">
+            <figcaption>Caesar Cipher Wheel with Shift 3</figcaption>
+          </figure>
+          <figure class="cipher-image">
+            <img src="{{ url_for('static', filename='images/Caeser_cipher.png')}}" alt="Caesar Cipher Shift Wheel">
+            <figcaption>Caesar Cipher Wheel with Shift 3</figcaption>
+          </figure>
+          <ul class="rules-list">
+            <li>a) Key generation: A shift value (e.g., 3).</li>
+            <li>b) Encryption: Shift each letter by the key mod 26.</li>
+            <li>c) Wrap around alphabet (Z + 1 = A).</li>
+            <li>d) Points to remember:</li>
+            <ul>
+              <li>i) Case preserved, non-letters unchanged.</li>
+              <li>ii) Weaknesses: Only 25 possible keys, brute-force easy.</li>
+            </ul>
+            <li>Decryption: Shift by negative key.</li>
+          </ul>
+          <button class="classy-button" onclick="toggleCaesar()">Simulate Encryption</button>
+          <div class="output-section hidden">
+            <p id="caesar-output" class="classy-pre"></p>
+          </div>
+        </div>
+
+        <div class="cipher-section">
+          <h3>DES (Data Encryption Standard)</h3>
+          <p>A symmetric-key block cipher developed in the 1970s, using 56-bit keys to encrypt 64-bit blocks. It's outdated due to short key length but foundational for modern cryptography.</p>
+          <p>Example: Encrypts binary data; requires an 8-byte key.</p>
+          <figure class="cipher-image">
+            <img src="{{ url_for('static', filename='images/DES.png')}}" alt="DES Encryption Process">
+            <figcaption>Diagram of DES Encryption Process</figcaption>
+          </figure>
+          <ul class="rules-list">
+            <li>a) DES key generation: parity drop to 56 bit then dividing it into 2 parts of 28 bits each applying circular left shift to each part adding them again and feeding them to compression p box to form a 48 bit key</li>
+            <li>b) DES function: expansion of the right side plaintext from 32 to 48 bits using p box and then xoring with the 48 bit key of which the output is then fed to an s box to make it a 32 bit text which is in turn fed to a straight p box.</li>
+            <figure class="cipher-image">
+              <img src="{{ url_for('static', filename='images/DESfunction.png')}}" alt="DES Function Diagram">
+              <figcaption>Diagram of DES Function</figcaption>
+            </figure>
+            <li>c) After all this is done the final text from above is fed to the xor again with the left side of the plaintext and then the output (32 bit) is swapped and sent to the right while the right side plaintext (which hasn't undergone any functions or such) goes to the left.</li>
+            <li>d) Points to remember:</li>
+            <ul>
+              <li>i) The last round(16th) doesn't have a swapper so the right side stays the right side and the left side remains the left.</li>
+              <figure class="cipher-image">
+                <img src="{{ url_for('static', filename='images/roundDES.png')}}" alt="DES Round Diagram">
+                <figcaption>Diagram of DES Round</figcaption>
+              </figure>
+              <li>ii) Initial permutation box and final permutation box are used before any round takes place and after every round takes place respectively.</li>
+              <li>iii) In the Expansion P-Box (the rule mentioned in point B), this is the expansion of the right side of the plaintext, the 8 4-bit parts are made into 8 6-bit parts by feeding the last bit of the 4-bit parts to the second box’s 1st bit of the 6-bit part.</li>
+              <figure class="cipher-image">
+                <img src="{{ url_for('static', filename='images/Expansion-PBox.png')}}" alt="Expansion P-Box Diagram">
+                <figcaption>Diagram of Expansion P-Box</figcaption>
+              </figure>
+              <li>iv) S-Box: The 6 bit input can be converted to 4 bit by using the S-Box the first and the sixth bit will give the row number and the middle bits will give the column number for getting the value which is to be substituted.</li>
+              <li>v) Properties of DES include: Avalanche and completeness.</li>
+              <li>vi) Weakness:</li>
+              <ul>
+                <li>(1) Cipher design: S-Box and P-Box</li>
+                <li>(2) Weakness in key size</li>
+                <ul>
+                  <li>(a) Key size:2^56 possible combinations to check which is kinda ez.</li>
+                  <li>(b) Weak keys: 4 definite weak and 48 possible weak.</li>
+                  <li>(c) Semi weak keys: 6 key pairs or 12 keys.</li>
+                </ul>
+              </ul>
+            </ul>
+            <li>DES decryption: Just remember that the last key of encryption is used as the first key of decryption and so on. Rest of the steps are exactly the same as that of encryption.</li>
+          </ul>
+          <button class="classy-button" onclick="toggleDES()">Simulate Encryption</button>
+          <div class="output-section hidden">
+            <p id="des-output" class="classy-pre"></p>
+          </div>
+        </div>
+
+        <div class="cipher-section">
+          <h3>AES (Advanced Encryption Standard)</h3>
+          <p>A modern symmetric block cipher standard (since 2001), using 128, 192, or 256-bit keys to encrypt 128-bit blocks. It's secure and widely used.</p>
+          <p>Example: Encrypts binary data; requires a 16/24/32-byte key.</p>
+          <figure class="cipher-image">
+            <img src="{{ url_for('static', filename='images/AES.png')}}" alt="AES Encryption Process">
+            <figcaption>Diagram of AES Encryption Process</figcaption>
+          </figure>
+          <ul class="rules-list">
+            <li>a) Key generation: The original encryption key is expanded into a series of round keys using a key schedule algorithm. For 128-bit key, it creates 11 round keys (initial + 10 rounds).</li>
+            <figure class="cipher-image">
+              <img src="{{ url_for('static', filename='images/key_genAES.png')}}" alt="AES Key Generation Diagram">
+              <figcaption>Diagram of AES Key Generation</figcaption>
+            </figure>
+            <li>b) AES function: The plaintext is arranged in a 4x4 byte matrix. Initial AddRoundKey, then for each round: SubBytes (S-box substitution), ShiftRows (cyclic shifts), MixColumns (matrix multiplication), AddRoundKey.</li>
+            <li>c) The last round omits MixColumns. Number of rounds: 10 for 128-bit key, 12 for 192-bit, 14 for 256-bit.</li>
+            <figure class="cipher-image">
+              <img src="{{ url_for('static', filename='images/roundAES.png')}}" alt="AES Round Diagram">
+              <figcaption>Diagram of AES Round</figcaption>
+            </figure>
+            <li>d) Points to remember:</li>
+            <ul>
+              <li>i) Block size is always 128 bits.</li>
+              <li>ii) SubBytes provides non-linearity.</li>
+              <li>iii) ShiftRows diffuses data across rows.</li>
+              <li>iv) MixColumns diffuses data across columns.</li>
+              <li>v) Properties: High security, efficiency, avalanche effect.</li>
+              <li>vi) Weaknesses: Vulnerable to side-channel attacks (timing, power analysis), but no practical cryptanalytic breaks for full AES.</li>
+            </ul>
+            <li>Decryption: Uses inverse operations: InvSubBytes, InvShiftRows, InvMixColumns, AddRoundKey (round keys in reverse order).</li>
+          </ul>
+          <button class="classy-button" onclick="toggleAES()">Simulate Encryption</button>
+          <div class="output-section hidden">
+            <p id="aes-output" class="classy-pre"></p>
+          </div>
+        </div>
+
+        <p><a href="/" class="classy-link">Back to Home</a></p>
+      </div>
+      <aside class="video-section">
+        <div class="video-item">
+          <a href="https://www.youtube.com/watch?v=UURjVI5cw4g&t=2s" target="_blank">
+            <img src="https://img.youtube.com/vi/UURjVI5cw4g/hqdefault.jpg" alt="Playfair Video Thumbnail">
+            <span>Learn how to encrypt Playfair Cipher here</span>
+          </a>
+        </div>
+        <div class="video-item">
+          <a href="https://www.youtube.com/watch?v=4APbCJ_8vvY" target="_blank">
+            <img src="https://img.youtube.com/vi/4APbCJ_8vvY/hqdefault.jpg" alt="Substitution Video Thumbnail">
+            <span>Learn how to encrypt Substitution Cipher here</span>
+          </a>
+        </div>
+        <div class="video-item">
+          <a href="https://www.youtube.com/watch?v=JtbKh_12ctg" target="_blank">
+            <img src="https://img.youtube.com/vi/JtbKh_12ctg/hqdefault.jpg" alt="Caesar Video Thumbnail">
+            <span>Learn how to encrypt Caesar Cipher here</span>
+          </a>
+        </div>
+        <div class="video-item">
+          <a href="https://www.youtube.com/watch?v=j53iXhTSi_s" target="_blank">
+            <img src="https://img.youtube.com/vi/j53iXhTSi_s/hqdefault.jpg" alt="DES Video Thumbnail">
+            <span>Learn how to encrypt DES Cipher here</span>
+          </a>
+        </div>
+        <div class="video-item">
+          <a href="https://www.youtube.com/watch?v=3MPkc-PFSRI" target="_blank">
+            <img src="https://img.youtube.com/vi/3MPkc-PFSRI/hqdefault.jpg" alt="AES Video Thumbnail">
+            <span>Learn how to encrypt AES Cipher here</span>
+          </a>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-container">
+      <p>&copy; 2025 Classy Encryptor. All Rights Reserved.</p>
+      <!-- Placeholder for footer image -->
+      <!-- <img src="/static/your-footer-image.png" alt="Classy Footer Graphic" class="footer-logo"> -->
+    </div>
+  </footer>
+
+  <script src="/static/main.js"></script>
+  <script>
+    function togglePlayfair() {
+      const outputSection = document.querySelector('.cipher-section:nth-child(1) .output-section');
+      const output = document.getElementById('playfair-output');
+      if (outputSection.classList.contains('hidden')) {
+        output.textContent = `Input: HELLO\nOutput: FJMPMP`;
+        outputSection.classList.remove('hidden');
+        outputSection.classList.add('visible');
+      } else {
+        outputSection.classList.remove('visible');
+        outputSection.classList.add('hidden');
+        setTimeout(() => { output.textContent = ''; }, 500); // Match transition duration
+      }
+    }
+
+    function toggleSubstitution() {
+      const outputSection = document.querySelector('.cipher-section:nth-child(2) .output-section');
+      const output = document.getElementById('substitution-output');
+      if (outputSection.classList.contains('hidden')) {
+        output.textContent = `Input: HELLO\nOutput: QJBBQ`;
+        outputSection.classList.remove('hidden');
+        outputSection.classList.add('visible');
+      } else {
+        outputSection.classList.remove('visible');
+        outputSection.classList.add('hidden');
+        setTimeout(() => { output.textContent = ''; }, 500); // Match transition duration
+      }
+    }
+
+    function toggleCaesar() {
+      const outputSection = document.querySelector('.cipher-section:nth-child(3) .output-section');
+      const output = document.getElementById('caesar-output');
+      if (outputSection.classList.contains('hidden')) {
+        output.textContent = `Input: HELLO\nOutput: KHOOR`;
+        outputSection.classList.remove('hidden');
+        outputSection.classList.add('visible');
+      } else {
+        outputSection.classList.remove('visible');
+        outputSection.classList.add('hidden');
+        setTimeout(() => { output.textContent = ''; }, 500); // Match transition duration
+      }
+    }
+
+    function toggleDES() {
+      const outputSection = document.querySelector('.cipher-section:nth-child(4) .output-section');
+      const output = document.getElementById('des-output');
+      if (outputSection.classList.contains('hidden')) {
+        output.textContent = `Input: TEST\nOutput: Encrypted: [Binary Data]`;
+        outputSection.classList.remove('hidden');
+        outputSection.classList.add('visible');
+      } else {
+        outputSection.classList.remove('visible');
+        outputSection.classList.add('hidden');
+        setTimeout(() => { output.textContent = ''; }, 500); // Match transition duration
+      }
+    }
+
+    function toggleAES() {
+      const outputSection = document.querySelector('.cipher-section:nth-child(5) .output-section');
+      const output = document.getElementById('aes-output');
+      if (outputSection.classList.contains('hidden')) {
+        output.textContent = `Input: TEST\nOutput: Encrypted: [Binary Data]`;
+        outputSection.classList.remove('hidden');
+        outputSection.classList.add('visible');
+      } else {
+        outputSection.classList.remove('visible');
+        outputSection.classList.add('hidden');
+        setTimeout(() => { output.textContent = ''; }, 500); // Match transition duration
+      }
+    }
+  </script>
+</body>
+</html>

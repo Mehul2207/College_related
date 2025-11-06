@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Encrypt/Decrypt Files</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* Functional styles kept here for clarity, visual styles are in styles.css */
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .key-option {
+      margin-top: 5px;
+    }
+    #key, #key_decrypt {
+      /* Overriding main width for better form control visibility/sizing */
+      width: 100%;
+      padding: 10px;
+      font-family: 'Lora', serif;
+    }
+    .decrypt-section {
+      margin-top: 20px;
+      border-top: 2px solid var(--classy-header);
+      padding-top: 15px;
+    }
+    .file-upload {
+      display: none; /* Hidden by default */
+    }
+    .toggle-section {
+      margin-bottom: 20px;
+      display: flex; /* Ensure buttons are side-by-side */
+      gap: 10px;
+    }
+    .toggle-button {
+      background: var(--classy-accent);
+      color: var(--classy-white);
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      transition: background 0.3s ease;
+    }
+    .toggle-button.active {
+      background: #B8860B; /* Darker gold */
+    }
+    /* Hide/show forms by default - managed by JS on load */
+    #encryption-form { display: none; }
+    #decryption-form { display: none; }
+  </style>
+</head>
+<body class="fade-in">
+  <header>
+    <div class="header-container">
+      <h1>Classy Document Encryptor</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/learn">Learn</a>
+        <a href="/about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="form-container fade-in">
+      <h2>Encrypt or Decrypt Your Document</h2>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <p class="flash-message">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <div class="toggle-section">
+        <button class="toggle-button" id="enc-toggle-btn" onclick="toggleMode('encryption')">Encryption</button>
+        <button class="toggle-button" id="dec-toggle-btn" onclick="toggleMode('decryption')">Decryption</button>
+      </div>
+
+      <div id="encryption-form">
+        <form action="/encrypt" method="post" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="cipher">Select Cipher:</label>
+            <select name="cipher" id="cipher" onchange="updateKeyField(); updateFileUpload()" required>
+              <option value="playfair">Playfair Cipher</option>
+              <option value="substitution">Substitution Cipher</option>
+              <option value="caesar">Caesar Cipher</option>
+              <option value="des">DES</option>
+              <option value="aes">AES</option>
+              <option value="rsa">RSA (Asymmetric)</option>
+              <option value="rabin">Rabin Cryptosystem (Asymmetric)</option>
+              <option value="elgamal">ElGamal (Asymmetric)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="key_option">Key Option:</label>
+            <select name="key_option" id="key_option" onchange="updateKeyField()" required>
+              <option value="default">Use Default Key</option>
+              <option value="custom">Enter Custom Key</option>
+              <option value="random">Generate Random Key (for DES/AES/Asymmetric)</option>
+            </select>
+          </div>
+
+          <div class="form-group key-option">
+            <label for="key">Key/Shift Value/Keyword:</label>
+            <input type="text" id="key" name="key" placeholder="Enter your key here" value="">
+            <p id="key-help" class="help-text">Key guidance will appear here.</p>
+          </div>
+
+          <div class="form-group" id="avalanche-container" style="display:none;">
+              <input type="checkbox" id="run_avalanche" name="run_avalanche">
+              <label for="run_avalanche">Run Confusion/Diffusion (Avalanche) Test</label>
+              <p class="help-text">Tests the cipher's effectiveness by measuring ciphertext change percentage when one plaintext bit is flipped (for DES/AES only).</p>
+          </div>
+          <div class="form-group file-upload">
+            <label for="file">Upload File (.pdf or .docx):</label>
+            <input type="file" id="file" name="file" accept=".pdf,.docx">
+          </div>
+
+          <div class="form-group">
+            <label for="input_text">Enter Text (Optional, will be ignored if file is uploaded):</label>
+            <textarea id="input_text" name="input_text" rows="4" placeholder="Enter text to encrypt"></textarea>
+          </div>
+
+          <div class="form-group">
+            <input type="checkbox" id="show_steps" name="show_steps">
+            <label for="show_steps">Show Encryption Steps (Only for Caesar/Playfair)</label>
+          </div>
+
+          <button type="submit" class="classy-button">Encrypt</button>
+        </form>
+      </div>
+
+      <div id="decryption-form">
+        <form action="/decrypt" method="post" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="cipher_decrypt">Select Cipher:</label>
+            <select name="cipher" id="cipher_decrypt" required>
+              <option value="des">DES</option>
+              <option value="aes">AES</option>
+              <option value="rsa">RSA (Asymmetric)</option>
+              <option value="rabin">Rabin Cryptosystem (Asymmetric)</option>
+              <option value="elgamal">ElGamal (Asymmetric)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="key_decrypt">Symmetric Key (for DES/AES only):</label>
+            <input type="text" id="key_decrypt" name="key" placeholder="Enter DES/AES key (hex or raw string)" required>
+            <p class="help-text">Use the hex key provided during encryption (e.g., from random key option).</p>
+          </div>
+
+          <div class="form-group">
+            <label for="private_key_decrypt">Private Key (for Asymmetric Ciphers only):</label>
+            <textarea id="private_key_decrypt" name="private_key" rows="2" placeholder="e.g., 'd,n' for RSA, 'p,q' for Rabin, or 'p,g,x' for ElGamal"></textarea>
+            <p class="help-text">Enter the private components from the generated key (e.g., 'd,n').</p>
+          </div>
+
+          <div class="form-group">
+            <label for="file_decrypt">Upload Encrypted File (.enc) or Enter Ciphertext:</label>
+            <input type="file" id="file_decrypt" name="file" accept=".enc">
+          </div>
+
+          <div class="form-group">
+            <label for="input_text_decrypt">Enter Ciphertext (or upload file):</label>
+            <textarea id="input_text_decrypt" name="input_text" rows="4" placeholder="Enter encrypted text or ciphertext string (e.g., hex for DES/AES, integer for RSA/Rabin, tuple string for ElGamal)"></textarea>
+          </div>
+
+          <button type="submit" class="classy-button">Decrypt</button>
+        </form>
+      </div>
+
+      <p><a href="/" class="classy-link">Back to Home</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-container">
+      <p>&copy; 2025 Classy Encryptor. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMode(mode) {
+      const encryptionForm = document.getElementById('encryption-form');
+      const decryptionForm = document.getElementById('decryption-form');
+      const encBtn = document.getElementById('enc-toggle-btn');
+      const decBtn = document.getElementById('dec-toggle-btn');
+
+      encBtn.classList.remove('active');
+      decBtn.classList.remove('active');
+
+      if (mode === 'encryption') {
+        encryptionForm.style.display = 'block';
+        decryptionForm.style.display = 'none';
+        encBtn.classList.add('active');
+      } else {
+        encryptionForm.style.display = 'none';
+        decryptionForm.style.display = 'block';
+        decBtn.classList.add('active');
+      }
+    }
+
+    function updateKeyField() {
+      const cipher = document.getElementById('cipher').value;
+      const keyOption = document.getElementById('key_option').value;
+      const keyInput = document.getElementById('key');
+      const keyHelp = document.getElementById('key-help');
+      const showSteps = document.getElementById('show_steps').parentNode;
+      const avalancheContainer = document.getElementById('avalanche-container'); // ADDED
+
+      // Reset key field and UI elements
+      keyInput.value = '';
+      keyInput.disabled = false;
+      showSteps.style.display = (cipher === 'caesar' || cipher === 'playfair') ? 'block' : 'none';
+      avalancheContainer.style.display = (cipher === 'des' || cipher === 'aes') ? 'block' : 'none'; // ADDED
+
+      // Update help text and key behavior based on cipher and option
+      if (keyOption === 'default') {
+        if (cipher === 'playfair') {
+          keyHelp.textContent = 'Default: "COMPUTER" (keyword)';
+          keyInput.value = 'COMPUTER';
+          keyInput.disabled = true;
+        } else if (cipher === 'substitution') {
+          keyHelp.textContent = 'Default: "qwertyuiopasdfghjklzxcvbnm" (permuted alphabet)';
+          keyInput.value = 'qwertyuiopasdfghjklzxcvbnm';
+          keyInput.disabled = true;
+        } else if (cipher === 'caesar') {
+          keyHelp.textContent = 'Default: Shift 5';
+          keyInput.value = '5';
+          keyInput.disabled = true;
+        } else if (['des', 'aes', 'rsa', 'rabin', 'elgamal'].includes(cipher)) {
+          keyHelp.textContent = `Default: Random key generated by the server. No input needed.`;
+          keyInput.value = '';
+          keyInput.disabled = true;
+        }
+      } else if (keyOption === 'custom') {
+        if (cipher === 'playfair') {
+          keyHelp.textContent = 'Enter a keyword (e.g., "SECRET").';
+        } else if (cipher === 'substitution') {
+          keyHelp.textContent = 'Enter a 26-letter permuted alphabet.';
+        } else if (cipher === 'caesar') {
+          keyHelp.textContent = 'Enter a shift value (1-25).';
+        } else if (cipher === 'des') {
+          keyHelp.textContent = 'Enter an 8-byte key (hex or raw string).';
+        } else if (cipher === 'aes') {
+          keyHelp.textContent = 'Enter a 16/24/32-byte key (hex or raw string).';
+        } else if (['rsa', 'rabin', 'elgamal'].includes(cipher)) {
+          keyHelp.textContent = 'Asymmetric ciphers primarily use generated keys. Please select "Random" or "Default".';
+          keyInput.disabled = true;
+        }
+      } else if (keyOption === 'random') {
+        if (['des', 'aes', 'rsa', 'rabin', 'elgamal'].includes(cipher)) {
+          keyHelp.textContent = `Key will be randomly generated by the server. The key will be displayed in the result page.`;
+          keyInput.value = '';
+          keyInput.disabled = true;
+        } else {
+            keyHelp.textContent = 'Classical ciphers use fixed keys or require a custom key.';
+            keyInput.disabled = false;
+        }
+      }
+    }
+
+    function updateFileUpload() {
+      const cipher = document.getElementById('cipher').value;
+      const fileUpload = document.querySelector('.file-upload');
+
+      // Only show file upload for ciphers that can handle large binary data (symmetric)
+      if (cipher === 'des' || cipher === 'aes') {
+        fileUpload.style.display = 'block';
+      } else {
+        fileUpload.style.display = 'none';
+      }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      toggleMode('encryption'); // Start with encryption view
+      updateKeyField();
+      updateFileUpload();
+
+      // Ensure key field is enabled/disabled correctly on mode change for decryption form
+      document.getElementById('cipher_decrypt').addEventListener('change', function() {
+        const cipher = this.value;
+        const keyInput = document.getElementById('key_decrypt');
+        const privateKeyInput = document.getElementById('private_key_decrypt');
+
+        if (cipher === 'des' || cipher === 'aes') {
+            keyInput.required = true;
+            privateKeyInput.required = false;
+            keyInput.placeholder = "Enter DES/AES key (hex or raw string)";
+            privateKeyInput.placeholder = "Not required for Asymmetric Ciphers";
+        } else {
+            keyInput.required = false;
+            privateKeyInput.required = true;
+            keyInput.placeholder = "Not required for Symmetric Ciphers";
+            if (cipher === 'rsa') {
+                privateKeyInput.placeholder = "Enter private key (d,n) - e.g., 1234,5678";
+            } else if (cipher === 'rabin') {
+                privateKeyInput.placeholder = "Enter private key (p,q) - e.g., 107,199";
+            } else if (cipher === 'elgamal') {
+                privateKeyInput.placeholder = "Enter private key (p,g,x) - e.g., 7919,2,2999";
+            }
+        }
+      });
+      // Initial call for decryption form elements
+      document.getElementById('cipher_decrypt').dispatchEvent(new Event('change'));
+    });
+  </script>
+</body>
+</html>

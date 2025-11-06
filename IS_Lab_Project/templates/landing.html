@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Classy Document Encryptor - Secure & Educational Cryptography</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="fade-in">
+  <header>
+    <div class="header-container">
+      <h1>Classy Document Encryptor</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/learn">Learn</a>
+        <a href="/encrypt-decrypt">Encrypt</a>
+        <a href="/about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="landing-container">
+      <div class="hero-section">
+        <div class="hero-content">
+          <h2>Protect Your Documents with Classy Cryptography</h2>
+          <p>The Classy Document Encryptor provides a secure web-based application for encrypting sensitive documents using a variety of classic and modern ciphers, while also serving as a valuable educational tool.</p>
+          <div class="options">
+            <a href="/encrypt-decrypt" class="classy-button">Start Encrypting Now</a>
+            <a href="/learn" class="classy-button" style="background: var(--classy-header);">Explore Ciphers</a>
+          </div>
+        </div>
+        <div class="hero-image">
+          <img src="{{ url_for('static', filename='images/AES.png') }}" alt="Advanced Encryption Standard Diagram">
+        </div>
+      </div>
+
+      <hr class="classy-divider">
+
+      <h2 style="text-align: center; margin-bottom: 30px;">Key Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <h3>Cipher Variety</h3>
+          <p>Encrypt your files using a variety of traditional and contemporary encryption methods, including Playfair, Substitution, Caesar, DES, AES, RSA, Rabin, and ElGamal.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Document Compatibility</h3>
+          <p>Seamlessly process and encrypt the contents of your important documents, supporting popular formats like **PDF** and **DOCX**.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Learn & Test</h3>
+          <p>View the step-by-step methods and algorithms used for encryption, transforming the application into a security learning resource. A dedicated test mode allows for vulnerability assessment using tools like OWASP ZAP in a sandboxed environment.</p>
+        </div>
+      </div>
+
+      <div class="download-link">
+        <p style="margin-bottom: 10px;">Check the project's security report from the latest ZAP scan on the Test Mode endpoint:</p>
+        <a href="/run_zap_scan" class="classy-button">Test Mode</a>
+      </div>
+
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-container">
+      <p>&copy; 2025 Classy Encryptor. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script src="/static/main.js"></script>
+</body>
+</html>

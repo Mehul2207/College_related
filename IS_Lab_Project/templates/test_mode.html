@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Test Mode - Encrypt/Decrypt Files</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    .form-group { margin-bottom: 15px; }
+    .key-option { margin-top: 5px; }
+    #key, #key_decrypt { width: 100%; padding: 8px; font-family: 'Lora', serif; }
+    #show-steps { margin-top: 10px; }
+    .decrypt-section { margin-top: 20px; border-top: 2px solid #483C32; padding-top: 15px; }
+    .file-upload, .text-input, .asymmetric-cipher, .symmetric-cipher, .encrypted-key { display: none; }
+    .toggle-section { margin-bottom: 20px; }
+    .toggle-button { background: #D4A017; color: #FFFFFF; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-family: 'Playfair Display', serif; font-size: 16px; margin-right: 10px; transition: background 0.3s ease; }
+    .toggle-button.active { background: #B8860B; }
+    #encryption-form, #decryption-form { display: none; }
+    .scan-button { background: #28A745; color: white; padding: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body class="fade-in">
+  <header>
+    <div class="header-container">
+      <h1>Test Mode - Classy Document Encryptor</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/learn">Learn</a>
+        <a href="/about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="form-container fade-in">
+      <h2>Test Mode - Encrypt or Decrypt Dummy Documents</h2>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <p class="flash-message">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <p>This mode uses dummy data for testing. No real files are processed.</p>
+      <div class="toggle-section">
+        <button class="toggle-button active" onclick="toggleMode('encryption')">Encryption</button>
+        <button class="toggle-button" onclick="toggleMode('decryption')">Decryption</button>
+      </div>
+
+      <div id="encryption-form" style="display: block;">
+        <form action="/encrypt" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="mode" value="standalone"> <!-- Force standalone for simplicity -->
+          <div class="form-group">
+            <label for="cipher">Select Cipher (Dummy Data):</label>
+            <select name="cipher" id="cipher" onchange="updateForm()" required>
+              <option value="playfair">Playfair Cipher</option>
+              <option value="substitution">Substitution Cipher</option>
+              <option value="caesar">Caesar Cipher</option>
+              <option value="des">DES</option>
+              <option value="aes">AES</option>
+              <option value="rsa">RSA</option>
+              <option value="rabin">Rabin Cryptosystem</option>
+              <option value="elgamal">ElGamal</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="key_option">Key Option:</label>
+            <select name="key_option" id="key_option" onchange="updateForm()" required>
+              <option value="default">Use Default Key</option>
+              <option value="custom">Enter Custom Key</option>
+              <option value="random">Generate Random Key</option>
+            </select>
+          </div>
+          <div class="form-group key-option">
+            <label for="key">Key (Dummy):</label>
+            <input type="text" id="key" name="key" placeholder="Enter dummy key" value="dummykey">
+          </div>
+          <div class="form-group">
+            <input type="checkbox" id="show_steps" name="show_steps">
+            <label for="show_steps">Show Encryption Steps</label>
+          </div>
+          <input type="hidden" name="input_text" value="This is a dummy text for testing encryption.">
+          <button type="submit" class="classy-button">Encrypt Dummy Data</button>
+        </form>
+      </div>
+
+      <div id="decryption-form">
+        <form action="/decrypt" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="decrypt_mode" value="standalone">
+          <div class="form-group">
+            <label for="cipher">Select Cipher (Dummy Decryption):</label>
+            <select name="cipher" id="cipher" required>
+              <option value="des">DES</option>
+              <option value="aes">AES</option>
+              <option value="rsa">RSA</option>
+              <option value="rabin">Rabin Cryptosystem</option>
+              <option value="elgamal">ElGamal</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="key">Key (Dummy):</label>
+            <input type="text" id="key" name="key" placeholder="Enter dummy key" value="dummykey">
+          </div>
+          <div class="form-group">
+            <label for="private_key">Private Key (if applicable):</label>
+            <input type="text" id="private_key" name="private_key" placeholder="e.g., d,n">
+          </div>
+          <input type="hidden" name="file" value="dummy_file.enc"> <!-- Mock file -->
+          <button type="submit" class="classy-button">Decrypt Dummy Data</button>
+        </form>
+      </div>
+
+      <div>
+        <button class="scan-button" onclick="window.location.href='/run_zap_scan'">Run ZAP Scan</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-container">
+      <p>&copy; 2025 Classy Encryptor - Test Mode. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMode(mode) {
+      const encForm = document.getElementById('encryption-form');
+      const decForm = document.getElementById('decryption-form');
+      const encBtn = document.querySelector('.toggle-button[onclick="toggleMode(\'encryption\')"]');
+      const decBtn = document.querySelector('.toggle-button[onclick="toggleMode(\'decryption\')"]');
+      if (mode === 'encryption') {
+        encForm.style.display = 'block';
+        decForm.style.display = 'none';
+        encBtn.classList.add('active');
+        decBtn.classList.remove('active');
+      } else {
+        encForm.style.display = 'none';
+        decForm.style.display = 'block';
+        encBtn.classList.remove('active');
+        decBtn.classList.add('active');
+      }
+    }
+
+    function updateForm() {
+      // Simplified for test mode (no dynamic updates needed)
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      updateForm();
+    });
+  </script>
+</body>
+</html>
