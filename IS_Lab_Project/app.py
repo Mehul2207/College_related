@@ -517,7 +517,7 @@ def run_zap_scan():
         zap_path = os.environ.get("ZAP_PATH", "/opt/ZAP_2.14.0/zap.sh")
         
         # Launch ZAP in headless mode
-        zap_process = subprocess.Popen([zap_path, "-daemon", "-port", "8081", "-config", f"api.key={api_key}"])
+        zap_process = subprocess.Popen([zap_path, "-daemon", "-port", "8080", "-config", f"api.key={api_key}"])
         
         # Give ZAP a few seconds to boot up before running the scan script
         time.sleep(20) 
