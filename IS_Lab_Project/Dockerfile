@@ -6,7 +6,9 @@ RUN apt-get update && apt-get install -y \
     curl \
     && apt-get clean
 
-RUN wget -qO- https://github.com/zaproxy/zaproxy/releases/download/v2.14.0/ZAP_2.14.0_Linux.tar.gz | tar zx -C /opt
+RUN RUN wget -q -L --tries=3 https://github.com/zaproxy/zaproxy/releases/download/v2.14.0/ZAP_2.14.0_Linux.tar.gz \
+    && tar -xzf ZAP_2.14.0_Linux.tar.gz -C /opt \
+    && rm ZAP_2.14.0_Linux.tar.gz
 ENV ZAP_PATH=/opt/ZAP_2.14.0/zap.sh
 
 WORKDIR /app
