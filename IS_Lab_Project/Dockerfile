@@ -1,22 +1,24 @@
+# Stage 1 — get ZAP from official image
+FROM ghcr.io/zaproxy/zaproxy:stable AS zap
+
+# Stage 2 — your Python app
 FROM python:3.10-slim
 
+# Install Java (ZAP needs it)
 RUN apt-get update && apt-get install -y \
     openjdk-21-jre-headless \
-    wget \
-    curl \
-    tar \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Use latest version here
-RUN wget -q https://github.com/zaproxy/zaproxy/releases/latest/download/ZAP_Linux.tar.gz \
-    && tar -xzf ZAP_Linux.tar.gz -C /opt \
-    && rm ZAP_Linux.tar.gz
+# Copy ZAP from official image
+COPY --from=zap /zap /opt/zap
 
-ENV ZAP_PATH=/opt/ZAP/zap.sh
+ENV ZAP_PATH=/opt/zap/zap.sh
+ENV PATH="/opt/zap:${PATH}"
 
 WORKDIR /app
 COPY . .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8080
