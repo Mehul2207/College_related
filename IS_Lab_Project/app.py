@@ -505,13 +505,30 @@ def decrypt_route():
 def run_zap_scan():
     """Runs OWASP ZAP scan on the /test_mode endpoint and returns the report."""
     try:
-        api_key = "12345"  # Replace with your actual ZAP API key
+        api_key = os.environ.get("ZAP_API_KEY", "12345") 
         os.makedirs("reports", exist_ok=True)
 
-        # Run zap_scan.py as a subprocess
+        # 1. DYNAMIC URL: Use request.host_url to get your actual Railway address
+        # This replaces 'http://localhost:5000'
+        target_url = request.host_url + "test_mode"
+
+        # 2. START ZAP: We must start the ZAP daemon before the script can talk to it
+        # We use the path defined in our Dockerfile
+        zap_path = os.environ.get("ZAP_PATH", "/opt/ZAP_2.14.0/zap.sh")
+        
+        # Launch ZAP in headless mode
+        zap_process = subprocess.Popen([zap_path, "-daemon", "-port", "8081", "-config", f"api.key={api_key}"])
+        
+        # Give ZAP a few seconds to boot up before running the scan script
+        time.sleep(20) 
+
+        # 3. RUN SCAN: Tell your script to talk to ZAP on port 8081
         subprocess.run([
-            "python", "zap_scan.py", "http://localhost:5000/test_mode", api_key
+            "python", "zap_scan.py", target_url, api_key
         ], check=True)
+
+        # 4. CLEANUP: Shut down the ZAP process to save RAM
+        zap_process.terminate()
 
         report_path = os.path.join("reports", "zap_report.html")
         if not os.path.exists(report_path):
@@ -532,7 +549,6 @@ def run_zap_scan():
         logging.error(f"Error running ZAP scan: {e}")
         flash(f"ZAP scan error: {str(e)}")
         return redirect(url_for('test_mode'))
-
 
 # -----------------------------------------------------------
 # MAIN
