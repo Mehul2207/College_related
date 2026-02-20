@@ -1,7 +1,7 @@
 FROM python:3.10-slim
 
 RUN apt-get update && apt-get install -y \
-    openjdk-17-jre-headless \
+    openjdk-21-jre-headless \
     wget \
     curl \
     && apt-get clean
