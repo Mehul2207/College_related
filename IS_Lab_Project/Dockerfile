@@ -8,12 +8,12 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN wget -q --show-progress --progress=dot:giga \
-    https://github.com/zaproxy/zaproxy/releases/download/v2.14.0/ZAP_2.14.0_Linux.tar.gz \
-    && tar -xzf ZAP_2.14.0_Linux.tar.gz -C /opt \
-    && rm ZAP_2.14.0_Linux.tar.gz
+# Use latest version here
+RUN wget -q https://github.com/zaproxy/zaproxy/releases/latest/download/ZAP_Linux.tar.gz \
+    && tar -xzf ZAP_Linux.tar.gz -C /opt \
+    && rm ZAP_Linux.tar.gz
 
-ENV ZAP_PATH=/opt/ZAP_2.14.0/zap.sh
+ENV ZAP_PATH=/opt/ZAP/zap.sh
 
 WORKDIR /app
 COPY . .
