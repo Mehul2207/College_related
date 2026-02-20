@@ -1,3 +1,4 @@
 flask
 zaproxy
 pycryptodomex
+PyPDF2
