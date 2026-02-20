@@ -10,7 +10,7 @@ if len(sys.argv) != 3:
 
 target = sys.argv[1]
 api_key = sys.argv[2]
-base_url = "http://localhost:8080"            # <- base, no /JSON here
+base_url = "http://localhost:8081"            # <- base, no /JSON here
 headers = {"X-ZAP-API-Key": api_key}
 
 print(f"Starting ZAP scan on {target}...")
